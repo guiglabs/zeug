@@ -1,6 +1,6 @@
 # Zeug
 
-Zeug is a Space Repetition mobile application developed to help users quickly memorize articles of the German language in a meaningful way. It uses frequency analysis and a modified version of the SuperMemo2 algorithm to optimally plan your study sessions. This repository contains only the backend, you can find the ReactNative frontend [here](https://github.com/guillem-gelabert/zeug)
+Zeug is a Space Repetition mobile application developed to help users quickly memorize articles of the German language in a meaningful way. It uses frequency analysis and a modified version of the SuperMemo2 algorithm to optimally plan your study sessions.
 
 ![screenshot](https://media.licdn.com/dms/image/C4D22AQFTiCnca4BxwA/feedshare-shrink_8192/0?e=1551128400&v=beta&t=bkq7J7xUckm0MMm6BNBgDbpatoEgerJc6zrT6_rs9qo)
 
