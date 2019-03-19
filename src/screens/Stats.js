@@ -6,25 +6,27 @@ import {
   TouchableHighlight,
 } from 'react-native';
 
-import NewspaperStats from '../components/NewspaperStats';
-import PercentageCounter from '../components/PercentageCounter';
-
-const { vw, vh, vmin, vmax } = require('react-native-viewport-units'); // eslint-disable-line no-unused-vars
 import { Ionicons } from '@expo/vector-icons';
+import NewspaperStats from '../components/NewspaperStats';
+import PercentageCounter from '../components/PercentageCounter'; // eslint-disable-line no-unused-vars
+
+import {
+  vw,
+} from '../utils/react-native-viewport-units';
 
 export default class Stats extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       stats: {
-        matureWords: 134
-      }
+        matureWords: 134,
+      },
     };
   }
 
   getMaturePercentage() {
     const { matureWords } = this.state.stats;
-    const pct = 105.0154 + (0.6811599 - 105.0154) / (1 + Math.pow(matureWords/107.1152, 0.6389192));
+    const pct = 105.0154 + (0.6811599 - 105.0154) / (1 + Math.pow(matureWords / 107.1152, 0.6389192));
     return Math.floor(pct);
   }
 
@@ -35,14 +37,28 @@ export default class Stats extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        <View style={{alignItems: 'flex-end', width: '100%', marginRight: 30}}>
-          <TouchableHighlight onPress={() => this.props.navigation.navigate('Game')} style={{height: 50, width: 50, borderRadius: 30, justifyContent: 'center', alignItems: 'center'}}>
+        <View style={{ alignItems: 'flex-end', width: '100%', marginRight: 30 }}>
+          <TouchableHighlight
+            onPress={() => this.props.navigation.navigate('Game')}
+            style={{
+              height: 50, width: 50, borderRadius: 30, justifyContent: 'center', alignItems: 'center',
+            }}
+          >
             <Ionicons name="md-arrow-back" size={32} color="gray" />
           </TouchableHighlight>
         </View>
         <NewspaperStats matureWords={this.state.stats.matureWords} />
-          <PercentageCounter style={[styles.percentage, {color: 'yellow'}]} end={this.getMaturePercentage()}/>
-          <Text style={styles.explanation}>You know {this.state.stats.matureWords} words, wich make up about {this.getMaturePercentage()}% of everyday conversation, newspapers and magazines.</Text>
+        <PercentageCounter style={[styles.percentage, { color: 'yellow' }]} end={this.getMaturePercentage()} />
+        <Text style={styles.explanation}>
+You know
+          {' '}
+          {this.state.stats.matureWords}
+          {' '}
+words, wich make up about
+          {' '}
+          {this.getMaturePercentage()}
+% of everyday conversation, newspapers and magazines.
+        </Text>
       </View>
     );
   }

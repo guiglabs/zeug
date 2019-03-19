@@ -7,18 +7,13 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { connect } from 'react-redux';
 import { withNavigation } from 'react-navigation';
-import { shouldAnimateUnmount } from '../actions/actions';
+import { shouldAnimateUnmount } from '../redux/actions/actions';
 
 const DrawerContent = (props) => {
-
-  const buttonAction = (e) => {
-    console.log(e);
-  };
-
   const changeInput = () => {
     props.closeDrawer();
     setTimeout(() => props.shouldAnimateUnmount(true), 200);
-  }
+  };
 
   const { options } = props.appState;
   const { navigate } = props.navigation;

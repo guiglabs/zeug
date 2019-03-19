@@ -4,10 +4,10 @@ import {
   View,
   Animated
 } from 'react-native';
+import { connect } from 'react-redux';
 import AnimatedButton from './AnimatedButton';
 
-import { connect } from 'react-redux';
-import { toggleVoice, shouldAnimateUnmount } from '../actions/actions';
+import { toggleVoice, shouldAnimateUnmount } from '../redux/actions/actions';
 
 class AnswerButtons extends React.Component {
   constructor(props) {

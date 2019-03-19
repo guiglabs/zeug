@@ -4,39 +4,44 @@ import {
   StatusBar,
   StyleSheet,
   View,
-  Text
+  Text,
 } from 'react-native';
 import { Font } from 'expo';
 
-import { createStore } from 'redux';
+
+import { createStore, applyMiddleware, compose } from 'redux';
 import { Provider, connect } from 'react-redux';
-import reducers from './src/reducers/reducers';
-import { getCurrentSession } from './src/actions/actions';
-let store = createStore(reducers, window.__REDUX_DEVTOOLS_EXTENSION__ &&
-  window.__REDUX_DEVTOOLS_EXTENSION__());
+import logger from './src/redux/middlewares/logger';
+import api from './src/redux/middlewares/api';
+import { promiseMiddleware } from './src/redux/middlewares/promise';
+import reducers from './src/redux/reducers/reducers';
+import { getCurrentSession } from './src/redux/actions/actions';
 
 import AppNavigator from './src/navigation/AppNavigator';
 
-export default class RootApp extends React.Component {
-  render() {
-    return (
-      <Provider store={store}>
-        <ConnectedApp />
-      </Provider>
-    );
-  }
-}
+// eslint-disable-next-line no-underscore-dangle
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+const store = createStore(reducers, composeEnhancers(applyMiddleware(promiseMiddleware)));
+
+const RootApp = () => (
+  <Provider store={store}>
+    <ConnectedApp />
+  </Provider>
+);
+
+export default RootApp;
 
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      fontsLoaded: false
-    }
+      fontsLoaded: false,
+    };
   }
+
   componentDidMount() {
     Font.loadAsync({
-      'Fira': require('./assets/fonts/FiraMono-Regular.ttf'),
+      Fira: require('./assets/fonts/FiraMono-Regular.ttf'),
     }).then(() => this.setState({ fontsLoaded: true }));
   }
 
@@ -48,27 +53,26 @@ class App extends React.Component {
           <AppNavigator />
         </View>
       );
-    } else {
-      return (
-        <View>
-          <Text>loading</Text>
-        </View>
-      )
     }
+    return (
+      <View>
+        <Text>loading</Text>
+      </View>
+    );
   }
 }
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = state => ({
   words: state.words,
 });
 
-const mapDispatchToProps = (dispatch) => ({
-  getCurrentSession: (words) => dispatch(getCurrentSession(words)),
+const mapDispatchToProps = dispatch => ({
+  getCurrentSession: words => dispatch(getCurrentSession(words)),
 });
 
 const ConnectedApp = connect(
   mapStateToProps,
-  mapDispatchToProps
+  mapDispatchToProps,
 )(App);
 
 const styles = StyleSheet.create({

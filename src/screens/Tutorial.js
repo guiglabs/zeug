@@ -4,58 +4,41 @@ import {
   Text,
   Button,
   StyleSheet,
-  Image
+  Image,
 } from 'react-native';
 
 import Swiper from 'react-native-swiper';
+import { connect } from 'react-redux';
+import { promiseAction } from '../redux/middlewares/promise';
 
-export default class Tutorial extends React.Component {
+const fetchUserDetails = () => promiseAction(
+  fetch('http://localhost:3000/user', {
+    headers: {
+      Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTU1Mjg0MDQ0NSwiZXhwIjoxNTg0Mzc2NDQ1fQ.GurD54Myontk9eb7nk7AKwIh2p2xXsX0I-92w4YpORg',
+    },
+  }).then(res => res.json()),
+  'GET_USER_DETAILS',
+);
+
+class Tutorial extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+
   render() {
     return (
+
       <Swiper loop={false}>
-        <View style={slideStyles.slide2}>
-          <Text style={styles.text, {fontFamily: 'Fira', fontSize: 35, textAlign: 'center'}}>This is a</Text>
-          <Text style={styles.text, {fontFamily: 'Fira', fontSize: 35, textAlign: 'center', backgroundColor: 'yellow'}}>language learning</Text>
-          <Text style={styles.text, {fontFamily: 'Fira', fontSize: 35, textAlign: 'center'}}>application</Text>
-        </View>
-        <View style={slideStyles.slide2}>
-        <Text style={styles.text, {fontFamily: 'Fira', fontSize: 60, textAlign: 'center'}}># 46: 🏛️</Text>
-          <Text style={styles.text, {fontFamily: 'Fira', fontSize: 60, textAlign: 'center'}}># 3422: 🍎</Text>
-        </View>
         <View style={slideStyles.slide1}>
-        <Image
-        style={{width: 250, height: 250}}
-        source={{uri: 'https://upload.wikimedia.org/wikipedia/commons/9/92/Ebbinghaus2.jpg'}}
-        />
-          <Text style={styles.text, {fontFamily: 'Fira', fontSize: 30, textAlign: 'center'}}> Hermann Ebbinghaus </Text>
-          <Text style={styles.text, {fontFamily: 'Fira', fontSize: 30, textAlign: 'center'}}> 1850 – 1909 </Text>
-        </View>
-        <View style={slideStyles.slide1}>
-          <Text style={styles.text, {fontFamily: 'Fira', fontSize: 70, textAlign: 'center'}}> Der </Text>
-          <Text style={styles.text, {fontFamily: 'Fira', fontSize: 70, textAlign: 'center'}}> Die </Text>
-          <Text style={styles.text, {fontFamily: 'Fira', fontSize: 70, textAlign: 'center'}}> Das </Text>
-          <Text onPress={() => this.props.navigation.navigate('Game')} style={styles.text, {fontFamily: 'Fira', fontSize: 70, textAlign: 'center', backgroundColor: 'yellow'}}> Zeug </Text>
-        </View>
-        <View style={slideStyles.slide3}>
-          <Button
-            title="Practice"
-            onPress={() => this.props.navigation.navigate('Game')}
-          />
+          <Button title="get user details" onPress={this.props.getUserDetails} />
+          <Text>
+            {this.props.loading ? 'Loading...' : this.props.user.displayName || 'done'}
+          </Text>
         </View>
       </Swiper>
     );
   }
-}
-
-const styles = {
-  text: {
-    fontFamily: 'Fira',
-    fontSize: 30,
-    textAlign: 'center',
-    color: '#fff',
-    fontSize: 30,
-    fontWeight: 'bold',
-  },
 }
 
 const slideStyles = {
@@ -64,20 +47,20 @@ const slideStyles = {
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#9DD6EB',
-    textAlign: 'center'
-  },
-  slide2: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#97CAE5',
-    textAlign: 'center'
-  },
-  slide3: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#92BBD9',
-    textAlign: 'center'
+    textAlign: 'center',
   },
 };
+
+const mapStateToProps = state => ({
+  user: state.userDetails.user,
+  loading: state.userDetails.loading,
+});
+
+const mapDispatchToProps = dispatch => ({
+  getUserDetails: () => dispatch(fetchUserDetails()),
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(Tutorial);

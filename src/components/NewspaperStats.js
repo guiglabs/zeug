@@ -6,7 +6,9 @@ import {
   Animated,
 } from 'react-native';
 
-const { vw, vh, vmin, vmax } = require('react-native-viewport-units'); // eslint-disable-line no-unused-vars
+import {
+  vw,
+} from '../utils/react-native-viewport-units';
 
 export default class NewspaperStats extends React.Component {
   constructor(props) {
@@ -28,15 +30,13 @@ export default class NewspaperStats extends React.Component {
   }
 
   animate() {
-    const animations = this.state.stubs.map((item, idx) => {
-      return Animated.timing(
-        this.animatedColor[idx],
-          {
-            toValue: 1,
-            duration: 300
-          }
-        );
-    });
+    const animations = this.state.stubs.map((item, idx) => Animated.timing(
+      this.animatedColor[idx],
+      {
+        toValue: 1,
+        duration: 300,
+      },
+    ));
     Animated.stagger(60, animations).start();
   }
 
@@ -45,17 +45,24 @@ export default class NewspaperStats extends React.Component {
     const lightness = Math.floor(Math.random() * (38 - 18) + 18);
     const grayShade = `hsl(0, 0%, ${lightness}%)`;
     const colorShade = `hsl(${hue}, 48%, 48%)`;
-    var color = this.animatedColor[key].interpolate({
+    const color = this.animatedColor[key].interpolate({
       inputRange: [0, 1],
-      outputRange: [grayShade, colorShade]
+      outputRange: [grayShade, colorShade],
     });
-    return <Animated.View key={key} style={[styles.stub, {backgroundColor: color, width: this.state.stubs[key]}]} />
+    return <Animated.View key={key} style={[styles.stub, { backgroundColor: color, width: this.state.stubs[key] }]} />;
   }
 
   getGrayStub(key, length) {
     const lightness = Math.floor(Math.random() * (38 - 18) + 18);
     const grayShade = `hsl(0, 0%, ${lightness}%)`;
-    return <Animated.View key={key} style={[styles.stub, {backgroundColor: grayShade, height: 20, width: this.state.stubs[key], marginLeft: 3, marginTop: 3}]} />
+    return (
+      <Animated.View
+        key={key}
+        style={[styles.stub, {
+          backgroundColor: grayShade, height: 20, width: this.state.stubs[key], marginLeft: 3, marginTop: 3,
+        }]}
+      />
+    );
   }
 
   getStubLengths(total) {
@@ -74,23 +81,23 @@ export default class NewspaperStats extends React.Component {
 
   getMaturePercentage() {
     const { matureWords } = this.props;
-    const pct = 105.0154 + (0.6811599 - 105.0154) / (1 + Math.pow(matureWords/107.1152, 0.6389192));
+    const pct = 105.0154 + (0.6811599 - 105.0154) / (1 + Math.pow(matureWords / 107.1152, 0.6389192));
     return Math.floor(pct);
   }
 
   renderStubs() {
     return this.state.stubs.map((cur, idx, arr) => {
       const pct = idx * 100 / arr.length;
-      if (pct <= this.getMaturePercentage()) return this.getColorStub(idx, cur)
+      if (pct <= this.getMaturePercentage()) return this.getColorStub(idx, cur);
       return this.getGrayStub(idx, cur);
     });
   }
 
   render() {
     return (
-        <View style={styles.newspaper}>
-          {this.renderStubs()}
-        </View>
+      <View style={styles.newspaper}>
+        {this.renderStubs()}
+      </View>
     );
   }
 }
@@ -111,5 +118,5 @@ const styles = StyleSheet.create({
     height: 20,
     width: 100,
     borderRadius: 15,
-  }
+  },
 });

@@ -4,23 +4,25 @@ import {
   StyleSheet,
   Text,
   View,
-  Animated
+  Animated,
 } from 'react-native';
 
-const { vw, vh, vmin, vmax } = require('react-native-viewport-units'); // eslint-disable-line no-unused-vars
+import {
+  vw,
+} from '../utils/react-native-viewport-units';
 
-const arr = []
-for (var i = 0; i < 500; i++) {
-  arr.push(i)
+const arr = [];
+for (let i = 0; i < 500; i++) {
+  arr.push(i);
 }
 
 export default class Squares extends Component {
-  constructor () {
+  constructor() {
     super();
     this.arr = this.getStubLengths(vw * 1000);
     this.animatedValue = [];
     this.arr.forEach((value) => {
-      this.animatedValue[value] = new Animated.Value(0)
+      this.animatedValue[value] = new Animated.Value(0);
     });
   }
 
@@ -38,33 +40,38 @@ export default class Squares extends Component {
     return result;
   }
 
-  componentDidMount () {
-    this.animate()
+  componentDidMount() {
+    this.animate();
   }
 
-  animate () {
-    const animations = this.arr.map((item) => {
-      return Animated.timing(
-        this.animatedValue[item],
-        {
-          toValue: 1,
-          duration: 2000
-        }
-      )
-    })
-    Animated.stagger(10, animations).start()
+  animate() {
+    const animations = this.arr.map(item => Animated.timing(
+      this.animatedValue[item],
+      {
+        toValue: 1,
+        duration: 2000,
+      },
+    ));
+    Animated.stagger(10, animations).start();
   }
 
-  render () {
+  render() {
     const animations = this.arr.map((a, i) => {
       console.log('a', a);
-      return <Animated.View key={i} style={{opacity: this.animatedValue[i], height: 20, width: a * vw, backgroundColor: 'red', marginLeft: 3, marginTop: 3}} />
-    })
+      return (
+        <Animated.View
+          key={i}
+          style={{
+            opacity: this.animatedValue[i], height: 20, width: a * vw, backgroundColor: 'red', marginLeft: 3, marginTop: 3,
+          }}
+        />
+      );
+    });
     return (
       <View style={styles.container}>
         {animations}
       </View>
-    )
+    );
   }
 }
 
@@ -72,6 +79,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'row',
-    flexWrap: 'wrap'
-  }
-})
+    flexWrap: 'wrap',
+  },
+});
