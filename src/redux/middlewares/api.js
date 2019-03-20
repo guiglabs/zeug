@@ -1,9 +1,10 @@
-const api = store => next => (action) => {
-  const { apiCall } = action;
-  if (!apiCall) return next(action);
+const BASE_URL = 'http://localhost:3001';
 
+const api = store => next => (action) => {
+  const { call } = action;
+  if (!call) return next(action);
   const defaultHeaders = {
-    Accept: 'application/json',
+    Accept: '*/*',
     'Content-Type': 'application/json',
   };
 
@@ -17,21 +18,18 @@ const api = store => next => (action) => {
     type: `${action.type}_PENDING`,
   });
 
-  fetch(`http://localhost:3000/${apiCall.url}`, {
-    method: apiCall.method || 'GET',
+  fetch(`${BASE_URL}/${call.url}`, {
+    method: call.method || 'GET',
     headers: {
-      Accept: '*/*',
-      'Content-Type': 'application/json',
       ...defaultHeaders,
       ...action.headers,
     },
   })
-    .then(r => r.json())
-    .then((data) => {
-      console.log('hahahaha so funny', data);
+    .then(response => response.json())
+    .then((result) => {
       store.dispatch({
         type: `${action.type}_SUCCESS`,
-        data,
+        result,
       });
     })
     .catch(error => store.dispatch({

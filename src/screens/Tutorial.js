@@ -3,43 +3,22 @@ import {
   View,
   Text,
   Button,
-  StyleSheet,
-  Image,
+  ActivityIndicator,
 } from 'react-native';
 
 import Swiper from 'react-native-swiper';
 import { connect } from 'react-redux';
-import { promiseAction } from '../redux/middlewares/promise';
 
-const fetchUserDetails = () => promiseAction(
-  fetch('http://localhost:3000/user', {
-    headers: {
-      Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTU1Mjg0MDQ0NSwiZXhwIjoxNTg0Mzc2NDQ1fQ.GurD54Myontk9eb7nk7AKwIh2p2xXsX0I-92w4YpORg',
-    },
-  }).then(res => res.json()),
-  'GET_USER_DETAILS',
+const Tutorial = props => (
+  <Swiper loop={false}>
+    <View style={slideStyles.slide1}>
+      <Button title="get user details" onPress={props.getUserDetails} />
+      <View>
+        {props.loading ? <ActivityIndicator size="large" color="#0000ff" /> : <Text>{props.user.displayName || 'done'}</Text>}
+      </View>
+    </View>
+  </Swiper>
 );
-
-class Tutorial extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
-
-  render() {
-    return (
-
-      <Swiper loop={false}>
-        <View style={slideStyles.slide1}>
-          <Button title="get user details" onPress={this.props.getUserDetails} />
-          <Text>
-            {this.props.loading ? 'Loading...' : this.props.user.displayName || 'done'}
-          </Text>
-        </View>
-      </Swiper>
-    );
-  }
-}
 
 const slideStyles = {
   slide1: {
@@ -57,7 +36,12 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  getUserDetails: () => dispatch(fetchUserDetails()),
+  getUserDetails: () => dispatch({
+    type: 'GET_USER_DETAILS',
+    apiCall: {
+      url: 'user',
+    },
+  }),
 });
 
 export default connect(

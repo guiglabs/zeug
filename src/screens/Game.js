@@ -16,11 +16,7 @@ import Card from '../components/Card';
 import DrawerContent from '../components/DrawerContent';
 import AnswerInterface from '../components/AnswerInterface';
 
-import {
-  vw,
-} from '../utils/react-native-viewport-units';
-
-const BASE_URL = 'http://localhost:3000';
+import { vw } from '../utils/react-native-viewport-units';
 
 class Game extends React.Component {
   constructor(props) {
@@ -50,35 +46,12 @@ class Game extends React.Component {
   };
 
   componentDidMount() {
-    fetch(`${BASE_URL}/cards`,
-      {
-        headers: {
-          Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTU1Mjg0MDQ0NSwiZXhwIjoxNTg0Mzc2NDQ1fQ.GurD54Myontk9eb7nk7AKwIh2p2xXsX0I-92w4YpORg',
-        },
-      })
-      .then(response => response.json())
-      .then((words) => {
-        if (words.length < 1) this.props.navigation.navigate('Results');
-        this.setState({ currentSession: words });
-      }).catch((error) => {
-        console.error('Error while trying to fetch cards', error); // eslint-disable-line no-console
-      });
-  }
-
-  updateCard(cardId, wordId, correct) {
-    fetch('http://192.168.1.204:3000/cards', {
-      method: 'PUT',
-      body: JSON.stringify({ cardId, wordId, correct }),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).catch((error) => {
-      console.log(error); // eslint-disable-line no-console
-    });
+    this.props.getSession();
+    const { currentSession } = this.props.words;
   }
 
   getAnswer(answer) { // (givenAnsewr: String, rightAnser: String, onCorrect, onIncorrect, currentSession, graduatedWords, )
-    if (answer === this.state.currentSession[0].article) {
+    if (answer === this.props.currentSession[0].article) {
       this.flashBackground(true);
       this.setState({ feedback: 'positive' });
     } else {
@@ -87,7 +60,7 @@ class Game extends React.Component {
     }
 
     setTimeout(() => {
-      const word = this.state.currentSession[0];
+      const word = this.props.currentSession[0];
       const correct = answer === word.article;
       const { currentSession, graduatedWords } = this.state;
 
@@ -138,6 +111,7 @@ class Game extends React.Component {
           currentSession.push(currentSession.shift()); // push it to the back of the array
         }
       }
+
       const gameDone = currentSession.length < 1;
       this.setState({ currentSession, graduatedWords, gameDone });
     // this.setState(currentState => { STATE REDUCER PATTERN
@@ -145,7 +119,20 @@ class Game extends React.Component {
     //   return newState;
     // })
     }, 1000);
-  } // feedbackColour
+  }
+
+  updateCard(cardId, wordId, correct) {
+    fetch('http://192.168.1.204:3000/cards', {
+      method: 'PUT',
+      body: JSON.stringify({ cardId, wordId, correct }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).catch((error) => {
+      console.log(error); // eslint-disable-line no-console
+    });
+    return this;
+  }
 
   showAnswer() {
     const animations = [
@@ -196,7 +183,8 @@ class Game extends React.Component {
   }
 
   renderCard() {
-    return <Card word={this.state.currentSession[0]} displayArticle={this.state.displayArticle} />;
+    console.log(this.state);
+    return <Card word={this.props.currentSession[0]} displayArticle={this.state.displayArticle} />;
   }
 
   render() {
@@ -231,15 +219,15 @@ class Game extends React.Component {
         <View style={styles.container}>
           <View style={styles.header}>
             <Text style={styles.wordCount}>
-              {this.state.currentSession.filter(a => a.stage === 'UNSEEN').length}
+              {this.props.currentSession.filter(a => a.stage === 'UNSEEN').length}
               {' '}
-              {this.state.currentSession.filter(a => a.stage === 'SEEN').length}
+              {this.props.currentSession.filter(a => a.stage === 'SEEN').length}
             </Text>
             <TouchableHighlight
               onPress={this.openControlPanel}
               style={{
-  height: 50, width: 50, borderRadius: 30, justifyContent: 'center', alignItems: 'center',
-}}
+                height: 50, width: 50, borderRadius: 30, justifyContent: 'center', alignItems: 'center',
+              }}
             >
               <Ionicons name="md-menu" size={32} color="gray" />
             </TouchableHighlight>
@@ -262,13 +250,34 @@ class Game extends React.Component {
   }
 }
 
+const TOKEN = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTU1Mjg0MDQ0NSwiZXhwIjoxNTg0Mzc2NDQ1fQ.GurD54Myontk9eb7nk7AKwIh2p2xXsX0I-92w4YpORg';
+
 const mapStateToProps = state => ({
+  currentSession: state.words.currentSession,
+  loading: state.words.loading,
   words: state.words,
   appState: state.appState,
 });
 
 const mapDispatchToProps = dispatch => ({
-  getCurrentSession: words => dispatch(getCurrentSession(words)),
+  getSession: () => dispatch({
+    type: 'GET_SESSION',
+    call: {
+      url: 'cards',
+    },
+    headers: {
+      Authorization: TOKEN,
+    },
+  }),
+  updateCard: () => dispatch({
+    type: 'UPDATE_CARD',
+    call: {
+      url: 'cards',
+    },
+    headers: {
+      Authorization: TOKEN,
+    },
+  }),
 });
 
 export default connect(

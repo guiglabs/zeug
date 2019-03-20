@@ -8,24 +8,22 @@ import {
 } from 'react-native';
 import { Font } from 'expo';
 
-
 import { createStore, applyMiddleware, compose } from 'redux';
-import { Provider, connect } from 'react-redux';
-import logger from './src/redux/middlewares/logger';
+import { Provider } from 'react-redux';
 import api from './src/redux/middlewares/api';
+import logger from './src/redux/middlewares/logger';
 import { promiseMiddleware } from './src/redux/middlewares/promise';
 import reducers from './src/redux/reducers/reducers';
-import { getCurrentSession } from './src/redux/actions/actions';
 
 import AppNavigator from './src/navigation/AppNavigator';
 
 // eslint-disable-next-line no-underscore-dangle
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-const store = createStore(reducers, composeEnhancers(applyMiddleware(promiseMiddleware)));
+const store = createStore(reducers, composeEnhancers(applyMiddleware(promiseMiddleware, api)));
 
 const RootApp = () => (
   <Provider store={store}>
-    <ConnectedApp />
+    <App />
   </Provider>
 );
 
@@ -61,19 +59,6 @@ class App extends React.Component {
     );
   }
 }
-
-const mapStateToProps = state => ({
-  words: state.words,
-});
-
-const mapDispatchToProps = dispatch => ({
-  getCurrentSession: words => dispatch(getCurrentSession(words)),
-});
-
-const ConnectedApp = connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(App);
 
 const styles = StyleSheet.create({
   container: {

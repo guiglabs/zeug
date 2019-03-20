@@ -2,7 +2,7 @@ import { combineReducers } from 'redux';
 
 const initial = {
   words: {
-    currentSession: {},
+    currentSession: [],
   },
   appState: {
     options: {
@@ -29,7 +29,7 @@ const userDetails = (state = { user: {}, loading: false }, action) => {
     case 'GET_USER_DETAILS_SUCCESS':
       return {
         ...state,
-        user: { ...result },
+        user: result,
         loading: false,
       };
     case 'GET_USER_DETAILS_FAILURE':
@@ -41,7 +41,8 @@ const userDetails = (state = { user: {}, loading: false }, action) => {
   }
 };
 
-const words = (state = initial.words, { type, words }) => {
+const words = (state = initial.words, action) => {
+  const { type, result } = action;
   switch (type) {
     case 'GET_SESSION_PENDING':
       return {
@@ -50,7 +51,7 @@ const words = (state = initial.words, { type, words }) => {
       };
     case 'GET_SESSION_SUCCESS':
       return {
-        ...state, words, loading: false,
+        ...state, currentSession: result, loading: false,
       };
     case 'GET_SESSION_FAILURE':
       return {

@@ -1,8 +1,3 @@
-export const getCurrentSession = words => ({
-  type: 'GET_CURRENT',
-  words,
-});
-
 export const getUserDetails = () => ({
   type: 'GET_USER_DETAILS',
 });
