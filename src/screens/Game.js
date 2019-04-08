@@ -11,6 +11,9 @@ import { Ionicons } from '@expo/vector-icons';
 import Drawer from 'react-native-drawer';
 
 import { connect } from 'react-redux';
+import {
+  getSession, graduateWord, moveToTheBack, updateCard,
+} from '../redux/actions/actions';
 
 import Card from '../components/Card';
 import DrawerContent from '../components/DrawerContent';
@@ -22,47 +25,39 @@ class Game extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      currentSession: [], // includes all words fetched
-      graduatedWords: [], // when a word is answered correctly twice it is graduated. This will be sent to the API to pass it to sm2
       feedbackColour: 'blue',
       displayArticle: false,
-      feedback: null,
       circleSize: new Animated.Value(0),
       opacity: new Animated.Value(0),
-      fontSize: 12 * vw,
-      showArticle: true,
-      scale: new Animated.Value(0),
       gameDone: false,
     };
     this.getAnswer = this.getAnswer.bind(this);
   }
 
   closeControlPanel = () => {
+    // eslint-disable-next-line no-underscore-dangle
     this._drawer.close();
   };
 
   openControlPanel = () => {
+    // eslint-disable-next-line no-underscore-dangle
     this._drawer.open();
   };
 
   componentDidMount() {
     this.props.getSession();
-    const { currentSession } = this.props.words;
   }
 
-  getAnswer(answer) { // (givenAnsewr: String, rightAnser: String, onCorrect, onIncorrect, currentSession, graduatedWords, )
+  getAnswer(answer) { // (givenAnswer: String, rightAnser: String, onCorrect, onIncorrect, currentSession, graduatedWords, )
     if (answer === this.props.currentSession[0].article) {
       this.flashBackground(true);
-      this.setState({ feedback: 'positive' });
     } else {
       this.flashBackground(false);
-      this.setState({ feedback: 'negative' });
     }
 
     setTimeout(() => {
       const word = this.props.currentSession[0];
       const correct = answer === word.article;
-      const { currentSession, graduatedWords } = this.state;
 
       // SEEN vs UNSEEN
       // Unseen cards need to be correctly answered **twice conescutivly** before graduating
@@ -84,36 +79,38 @@ class Game extends React.Component {
       // if firstAnswerCorrect === true && !correct
       //   firstAnswerCorrect = false
 
-      if (word.stage === 'UNSEEN') { // if UNSEEN
+      const unseen = word.stage === 'UNSEEN';
+
+      if (unseen) { // if UNSEEN
         if (correct) { // if CORRECT
           word.consecutiveCorrectAnswers++;
           if (word.consecutiveCorrectAnswers >= 2) {
             this.updateCard(word.cardId, word.wordId, word.firstAnswerCorrect); // correct is a boolean. In this case is false.
-            graduatedWords.push(currentSession.shift()); // graduate it
+            this.props.graduateWord(word); // graduate it
           } else {
-            currentSession.push(currentSession.shift()); // push it to the back of the array
+            this.props.moveToTheBack(); // push it to the back of the array
           }
         } else { // if INCORRECT
           word.consecutiveCorrectAnswers = 0;
-          currentSession.push(currentSession.shift()); // push it to the back of the array
+          this.props.moveToTheBack(); // push it to the back of the array
         }
       } else { // if SEEN // seen cards are initialized with consecutiveCorrectAnswers = 1 in the server
         if (correct) { // if CORRECT
           word.consecutiveCorrectAnswers++;
           if (word.consecutiveCorrectAnswers >= 2) {
             this.updateCard(word.cardId, word.wordId, word.firstAnswerCorrect); // correct is a boolean. In this case is false.
-            graduatedWords.push(currentSession.shift()); // graduate it
+            this.props.graduateWord(word); // graduate it
           } else {
-            currentSession.push(currentSession.shift()); // push it to the back of the array
+            this.props.moveToTheBack(); // push it to the back of the array
           }
         } else { // if INCORRECT
           word.consecutiveCorrectAnswers = 0;
-          currentSession.push(currentSession.shift()); // push it to the back of the array
+          this.props.moveToTheBack(); // push it to the back of the array
         }
       }
 
-      const gameDone = currentSession.length < 1;
-      this.setState({ currentSession, graduatedWords, gameDone });
+      const gameDone = this.props.currentSession.length < 1;
+      this.setState({ gameDone });
     // this.setState(currentState => { STATE REDUCER PATTERN
     //   const newState = magicalFunction(currentState)
     //   return newState;
@@ -122,16 +119,19 @@ class Game extends React.Component {
   }
 
   updateCard(cardId, wordId, correct) {
-    fetch('http://192.168.1.204:3000/cards', {
-      method: 'PUT',
-      body: JSON.stringify({ cardId, wordId, correct }),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).catch((error) => {
-      console.log(error); // eslint-disable-line no-console
-    });
-    return this;
+    console.log(cardId, wordId, correct);
+
+    this.props.updateCard({ id: cardId, correct });
+    // fetch('http://192.168.1.204:3000/cards', {
+    //   method: 'PUT',
+    //   body: JSON.stringify({ cardId, wordId, correct }),
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    // }).catch((error) => {
+    //   console.log(error); // eslint-disable-line no-console
+    // });
+    // return this;
   }
 
   showAnswer() {
@@ -176,14 +176,12 @@ class Game extends React.Component {
     } else {
       feedbackColour = 'red';
     }
-    const feedback = null;
-    this.setState({ feedbackColour, displayArticle, feedback });
+    this.setState({ feedbackColour, displayArticle });
     setTimeout(() => this.setState({ feedbackColour: 'white', displayArticle: false }), 1000);
     this.showAnswer();
   }
 
   renderCard() {
-    console.log(this.state);
     return <Card word={this.props.currentSession[0]} displayArticle={this.state.displayArticle} />;
   }
 
@@ -250,8 +248,6 @@ class Game extends React.Component {
   }
 }
 
-const TOKEN = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTUsImlhdCI6MTU1Mjg0MDQ0NSwiZXhwIjoxNTg0Mzc2NDQ1fQ.GurD54Myontk9eb7nk7AKwIh2p2xXsX0I-92w4YpORg';
-
 const mapStateToProps = state => ({
   currentSession: state.words.currentSession,
   loading: state.words.loading,
@@ -260,24 +256,10 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  getSession: () => dispatch({
-    type: 'GET_SESSION',
-    call: {
-      url: 'cards',
-    },
-    headers: {
-      Authorization: TOKEN,
-    },
-  }),
-  updateCard: () => dispatch({
-    type: 'UPDATE_CARD',
-    call: {
-      url: 'cards',
-    },
-    headers: {
-      Authorization: TOKEN,
-    },
-  }),
+  getSession: () => dispatch(getSession()),
+  graduateWord: card => dispatch(graduateWord(card)),
+  moveToTheBack: () => dispatch(moveToTheBack()),
+  updateCard: card => dispatch(updateCard(card)),
 });
 
 export default connect(
@@ -297,7 +279,6 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     paddingTop: 25,
-    paddingLeft: 20,
     paddingLeft: 20,
   },
   wordCount: {

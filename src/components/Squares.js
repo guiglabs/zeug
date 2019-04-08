@@ -56,17 +56,14 @@ export default class Squares extends Component {
   }
 
   render() {
-    const animations = this.arr.map((a, i) => {
-      console.log('a', a);
-      return (
-        <Animated.View
-          key={i}
-          style={{
-            opacity: this.animatedValue[i], height: 20, width: a * vw, backgroundColor: 'red', marginLeft: 3, marginTop: 3,
-          }}
-        />
-      );
-    });
+    const animations = this.arr.map((a, i) => (
+      <Animated.View
+        key={i}
+        style={{
+          opacity: this.animatedValue[i], height: 20, width: a * vw, backgroundColor: 'red', marginLeft: 3, marginTop: 3,
+        }}
+      />
+    ));
     return (
       <View style={styles.container}>
         {animations}

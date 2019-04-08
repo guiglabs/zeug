@@ -9,17 +9,17 @@ import {
 import { Font } from 'expo';
 
 import { createStore, applyMiddleware, compose } from 'redux';
+
 import { Provider } from 'react-redux';
 import api from './src/redux/middlewares/api';
-import logger from './src/redux/middlewares/logger';
-import { promiseMiddleware } from './src/redux/middlewares/promise';
 import reducers from './src/redux/reducers/reducers';
 
 import AppNavigator from './src/navigation/AppNavigator';
 
-// eslint-disable-next-line no-underscore-dangle
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-const store = createStore(reducers, composeEnhancers(applyMiddleware(promiseMiddleware, api)));
+const store = createStore(reducers, composeEnhancers(
+  applyMiddleware(api),
+));
 
 const RootApp = () => (
   <Provider store={store}>

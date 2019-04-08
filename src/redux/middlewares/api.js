@@ -1,4 +1,5 @@
 const BASE_URL = 'http://localhost:3001';
+// console.log('hi');
 
 const api = store => next => (action) => {
   const { call } = action;
@@ -9,11 +10,11 @@ const api = store => next => (action) => {
   };
 
   const state = store.getState();
+
   if (state.authentication && state.authentication.accessToken) {
     defaultHeaders.Authorization = `Bearer ${state.authentication.accessToken}`;
   }
 
-  // THE FETCH
   next({
     type: `${action.type}_PENDING`,
   });
@@ -24,12 +25,13 @@ const api = store => next => (action) => {
       ...defaultHeaders,
       ...action.headers,
     },
+    body: call.body,
   })
     .then(response => response.json())
-    .then((result) => {
+    .then((data) => {
       store.dispatch({
         type: `${action.type}_SUCCESS`,
-        result,
+        data,
       });
     })
     .catch(error => store.dispatch({
@@ -37,17 +39,5 @@ const api = store => next => (action) => {
       error,
     }));
 };
-
-// ACTION PROTOTYPE
-// {
-//   type: 'GET_JOKE',
-//   api: {
-//     url: '/jokes/random',
-//     method: 'GET',
-//     headers: {
-//        …
-//     }
-//   }
-// }
 
 export default api;

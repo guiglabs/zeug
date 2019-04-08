@@ -4,7 +4,8 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "eject": "expo eject"
+    "eject": "expo eject",
+    "postinstall": "rndebugger-open"
   },
   "dependencies": {
     "@expo/vector-icons": "^9.0.0",
@@ -33,7 +34,10 @@
     "eslint-config-airbnb": "^17.1.0",
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-jsx-a11y": "^6.1.2",
-    "eslint-plugin-react": "^7.12.3"
+    "eslint-plugin-react": "^7.12.3",
+    "react-native-debugger-open": "^0.3.19",
+    "redux-devtools-extension": "^2.13.8",
+    "remote-redux-devtools": "^0.5.16"
   },
   "private": true
 }
